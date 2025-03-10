@@ -1,0 +1,38 @@
+#weather-search {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 75%;
+}
+
+#search-bar {
+    background-color: #e9f1ff;
+    color: #170f00;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    font-size: 24px;
+    width: 75%;
+    padding: 10px 7px;
+    transition: all 0.25s ease;
+}
+
+#search-bar:focus {
+    outline: none;
+    border-color: #f74a4a;
+}
+
+#search-button {
+    background-color: #d15353;
+    margin: 10px 0px;
+    padding: 15px;
+    width: 77.5%;
+    font-size: 18px;
+    transition: all 0.5s ease;
+}
+
+#search-button:hover {
+    background-color: #d26464;
+    border-color: #a12828;
+    box-shadow: 0 0 7px rgba(235, 52, 52, 0.5);
+}

@@ -1,0 +1,50 @@
+#root {
+  max-width: 100%;
+  min-height: 100vh;
+  margin: 0 auto;
+  text-align: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+body {
+  background-image: url("./assets/Kyoto.jpeg");
+  background-size: 110%;
+  font-family: "Ubuntu", "sans-serif";
+  transition: background-position 0.1s ease-out;
+  transition: background-image 1s ease-in-out;
+  /* Triggered by an event handler in the jsx file */
+}
+
+#overlay {
+  background-image: url("./assets/Kyoto.jpeg");
+  transition: background-position 0.1s ease-out;
+  max-width: 100%;
+  min-height: 100vh;
+  margin: 0 auto;
+  text-align: center;
+  align-items: center;
+  overflow: hidden;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: 110%;
+}
+
+main {
+  width: 1920px;
+  justify-content: center;
+  display: flex;
+  text-align: left;
+  z-index: 1000;
+}

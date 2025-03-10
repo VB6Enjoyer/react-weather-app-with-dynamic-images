@@ -1,0 +1,19 @@
+#weather-container {
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    background-color: rgba(170, 170, 170, 0.333);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+}
+
+#error-message {
+    color: red;
+    font-size: 20px;
+}
