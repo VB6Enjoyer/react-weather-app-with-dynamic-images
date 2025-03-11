@@ -1,4 +1,4 @@
-![imagen](https://github.com/user-attachments/assets/7c3f5b1c-5dc2-4d03-82a7-a8ef7cf66c8f)# The weather app to end all weather apps
+# The weather app to end all weather apps
 *Just kidding, but it does look nice.*
 
 ## What is this?
