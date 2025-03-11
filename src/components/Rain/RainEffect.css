@@ -1,0 +1,146 @@
+.rain-container {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    max-width: 100%;
+    min-height: 100vh;
+    margin: 0 auto;
+    text-align: center;
+    align-items: center;
+    overflow: hidden;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+}
+
+.rain {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.rain.front-row,
+.rain-back-row {
+    display: block;
+    z-index: -1;
+    opacity: 1;
+    width: 100%;
+    position: absolute;
+}
+
+.rain.back-row {
+    bottom: 60px;
+    height: 68%;
+
+}
+
+.rain.front-row {
+    bottom: 60px;
+    height: 70%;
+}
+
+.drop {
+    position: absolute;
+    bottom: 100%;
+    width: 15px;
+    height: 120px;
+    pointer-events: none;
+    animation: drop 0.5s linear infinite;
+}
+
+.rain-container.splat-toggle .drop {
+    display: none;
+}
+
+.rain-container.splat-toggle .splat {
+    display: block;
+}
+
+.rain-container.single-toggle .drop {
+    display: none;
+}
+
+.rain-container.single-toggle .drop:nth-child(10) {
+    display: block;
+}
+
+.stem {
+    width: 2px;
+    height: 60%;
+    margin-left: 7px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25));
+    animation: stem 0.5s linear infinite;
+}
+
+.splat {
+    width: 15px;
+    height: 10px;
+    border-top: 2px dotted rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    opacity: 1;
+    transform: scale(0);
+    animation: splat 0.5s linear infinite;
+}
+
+@keyframes drop {
+    0% {
+        transform: translateY(0vh);
+    }
+
+    75% {
+        transform: translateY(112.5vh);
+    }
+
+    100% {
+        transform: translateY(112.5vh);
+    }
+}
+
+@keyframes stem {
+    0% {
+        opacity: 1;
+    }
+
+    65% {
+        opacity: 1;
+    }
+
+    75% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes splat {
+    0% {
+        opacity: 1;
+        transform: scale(0);
+    }
+
+    80% {
+        opacity: 1;
+        transform: scale(0);
+    }
+
+    90% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+}

@@ -1,0 +1,57 @@
+#thunder {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    z-index: -1;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+    pointer-events: none;
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+}
+
+.animate-thunder {
+    animation: thunder 1s ease-in-out;
+}
+
+@keyframes thunder {
+    0% {
+        background-color: #ffffff;
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.55;
+    }
+
+    30% {
+        opacity: 0.66;
+    }
+
+    40% {
+        opacity: 0.75;
+    }
+
+    50% {
+        opacity: 0.55;
+    }
+
+    60% {
+        opacity: 0.60;
+    }
+
+    70% {
+        opacity: 0.55;
+    }
+
+    80% {
+        opacity: 0.33;
+    }
+
+    100% {
+        opacity: 0;
+        background-color: transparent;
+    }
+}
