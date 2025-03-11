@@ -2,7 +2,7 @@ import "./WeatherDisplay.css";
 import { Droplets, Sunrise, Sunset, Thermometer, Cloud, Wind } from "lucide-react"
 import { useCallback, useEffect, useState } from "react";
 
-function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj, timez, visible }) {
+function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj, timez, visible, tempColor }) {
     const [animationClass, setAnimationClass] = useState('');
     const [location, setLocation] = useState("");
     const [main, setMain] = useState("");
@@ -58,7 +58,17 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
             b = 0;
         }
 
-        return `rgb(${r}, ${g}, ${b})`;
+        const formattedColor = `rgb(${r}, ${g}, ${b})`;
+        let day;
+
+        if (weather.icon[2] == "d") {
+            day = true;
+        } else {
+            day = false;
+        }
+
+        tempColor(formattedColor, day);
+        return formattedColor;
     };
 
     const getIcon = () => {
@@ -181,7 +191,7 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                 setTimezone(timez);
                 setSunrise(formatTime(sysObj.sunrise));
                 setSunset(formatTime(sysObj.sunset));
-            }, 333); //
+            }, 400); //
 
             return () => clearTimeout(timer);
         } else {
@@ -199,19 +209,22 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                 </span>
 
                 <div id="data-container">
-                    <div className="weather-data-container" id="temperature-container" onClick={(e) => changeTempScale(e)}>
+                    <div className="weather-data-container interactive-container" id="temperature-container" onClick={(e) => changeTempScale(e)}>
                         <Thermometer className="data-icon" />
                         <span id="temperature" className="weather-data">
-                            {/* This is probably not a good way to code this, but it works. */}
-                            <b className="data-header">Temperature</b>
-                            <p className="weather-value" id="temperature-value" style={{ color: getTemperatureColor(temperature) }}>{
-                                temperature
-                                    ? `${Math.round(temperature)}`
-                                    : "Error"}</p>
-                            <p className="interactive-text">{tempScale}</p>
+                            <b className="data-header non-selectable">Temperature</b>
+                            <span>
+                                <p className="weather-value" id="temperature-value" style={{ color: getTemperatureColor(temperature) }}>{
+                                    temperature
+                                        ? `${Math.round(temperature)}`
+                                        : "Error"}</p>
+                                <p className="inline">{tempScale}</p>
+                            </span>
                             {feelsLike
-                                ? <> (feels like <p id="feels-like" style={{ color: getTemperatureColor(feelsLike) }}>{`${Math.round(feelsLike)}`}</p>
-                                    <p className="interactive-text">{tempScale}</p>)</>
+                                ? <span id="feels-like-container"> Feels like
+                                    <p id="feels-like" style={{ color: getTemperatureColor(feelsLike) }}>{` ${Math.round(feelsLike)}`}</p>
+                                    <p className="inline">{tempScale}</p>
+                                </span>
                                 : ""}
                         </span>
                     </div>
@@ -219,7 +232,7 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                     <div className="weather-data-container">
                         <Cloud className="data-icon" />
                         <span id="weather" className="weather-data">
-                            <b className="data-header">Weather</b>
+                            <b className="data-header non-selectable">Weather</b>
                             <p className="weather-value" id="weather-value">{`${weather.main || "Error"}`}</p>
                         </span>
                     </div>
@@ -227,37 +240,37 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                     <div className="weather-data-container">
                         <Droplets className="data-icon" />
                         <span id="humidity" className="weather-data">
-                            <b className="data-header">Humidity</b>
+                            <b className="data-header non-selectable">Humidity</b>
                             <p className="weather-value" id="humidity-value">{main.humidity}%</p>
                         </span>
                     </div>
 
-                    <div className="weather-data-container">
+                    <div className="weather-data-container interactive-container" onClick={(e) => changeWindSpeed(e)}>
                         <Wind className="data-icon" />
                         <span id="wind" className="weather-data">
-                            <b className="data-header">Wind </b>
+                            <b className="data-header non-selectable">Wind </b>
                             <span className="weather-value" id="wind-value">{
                                 <>
-                                    <span id="wind-speed">{windSpeed} <p className="interactive-text" onClick={(e) => changeWindSpeed(e)}>{speedSys}</p> </span>
+                                    <span id="wind-speed">{windSpeed} <p className="inline">{speedSys}</p> </span>
                                     {getWindDirection()}
                                 </>
                             }</span>
                         </span>
                     </div>
 
-                    <div className="weather-data-container">
+                    <div className="weather-data-container interactive-container" onClick={(e) => changeTimeFormat(e)}>
                         <Sunrise className="data-icon" />
                         <span id="sunrise" className="weather-data">
-                            <b className="data-header">Sunrise </b>
-                            <p className="weather-value interactive-text" id="sunrise-value" onClick={(e) => changeTimeFormat(e)}>{sunrise}</p>
+                            <b className="data-header non-selectable">Sunrise </b>
+                            <p className="weather-value inline" id="sunrise-value">{sunrise}</p>
                         </span>
                     </div>
 
-                    <div className="weather-data-container">
+                    <div className="weather-data-container interactive-container" onClick={(e) => changeTimeFormat(e)}>
                         <Sunset className="data-icon" />
                         <span id="sunset" className="weather-data">
-                            <b className="data-header">Sunset </b>
-                            <p className="weather-value interactive-text" id="sunset-value" onClick={(e) => changeTimeFormat(e)}>{sunset}</p>
+                            <b className="data-header non-selectable">Sunset </b>
+                            <p className="weather-value inline" id="sunset-value">{sunset}</p>
                         </span>
                     </div>
                 </div>

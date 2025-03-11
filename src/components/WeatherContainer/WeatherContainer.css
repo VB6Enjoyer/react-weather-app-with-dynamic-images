@@ -1,3 +1,9 @@
+@import "tailwindcss";
+
+#app-header {
+    display: inline-block;
+}
+
 #weather-container {
     border: 1px solid #dddddd;
     border-radius: 10px;
