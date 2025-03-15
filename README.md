@@ -10,6 +10,6 @@ It is worth nothing that the app was not done with responsive design in mind, so
 ![Web App Image](https://github.com/user-attachments/assets/f5ea3624-1f7e-435d-a3c1-a8a731195c18)
 
 ## Can I use it?
-Yes, you can use it in real-time by clicking the big text below:
+Yes, you can use it in real time by clicking the big text below:
 
 ### <a href="https://the-vb6enjoyer-weather-app.onrender.com/">CLICK ME!!!</a>
