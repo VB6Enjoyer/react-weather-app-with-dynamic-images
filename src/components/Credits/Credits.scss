@@ -1,0 +1,61 @@
+$neonColor: #00ff00;
+
+#credits-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: inline-block;
+    padding: 5px;
+    z-index: 9999;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    color: $neonColor;
+    animation: flicker 3s infinite alternate;
+}
+
+#credits {
+    display: inline;
+    width: 100%;
+    color: white;
+}
+
+#author {
+    display: inline;
+    width: 100%;
+}
+
+@keyframes flicker {
+
+    0%,
+    19%,
+    21%,
+    23%,
+    25%,
+    54%,
+    56%,
+    100% {
+        opacity: 1;
+        text-shadow:
+            0 0 5px $neonColor,
+            0 0 10px $neonColor,
+            0 0 15px $neonColor,
+            0 0 20px $neonColor,
+            0 0 25px $neonColor,
+            0 0 30px $neonColor,
+            0 0 35px $neonColor;
+    }
+
+    20%,
+    24%,
+    55% {
+        opacity: 0.8;
+        text-shadow: none;
+    }
+
+    22%,
+    26%,
+    53% {
+        opacity: 0.5;
+        text-shadow: none;
+    }
+}
