@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './App.css'
 import RainEffect from './components/Rain/RainEffect';
 import WeatherContainer from './components/WeatherContainer/WeatherContainer'
 import Snowflakes from './components/Snowflakes/Snowflakes';
 import Thunder from './components/Thunder/Thunder';
+import Credits from './components/Credits/Credits';
 
 function App() {
   const [weather, setWeather] = useState(0);
@@ -24,18 +25,21 @@ function App() {
   }
 
   return (
-    <main>
-      <WeatherContainer currentWeather={currentWeather} />
-      <div id="overlay" style={{ opacity: 0 }}></div>
-      {weather >= 200 && weather <= 531 ?
-        <>
-          <RainEffect />
-          {weather >= 200 && weather <= 232 && <Thunder />}
-        </>
-        : weather >= 600 && weather <= 622 ?
-          <Snowflakes />
-          : ""}
-    </main>
+    <React.Fragment>
+      <main>
+        <WeatherContainer currentWeather={currentWeather} />
+        <div id="overlay" style={{ opacity: 0 }}></div>
+        {weather >= 200 && weather <= 531 ?
+          <>
+            <RainEffect />
+            {weather >= 200 && weather <= 232 && <Thunder />}
+          </>
+          : weather >= 600 && weather <= 622 ?
+            <Snowflakes />
+            : ""}
+      </main>
+      <Credits />
+    </React.Fragment>
   )
 }
 
