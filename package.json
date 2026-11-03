@@ -1,17 +1,43 @@
 {
-  "name": "new-project",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "weather-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "sass": "sass src/components/Credits/Credits.scss src/components/Credits/Credits.css --watch",
     "prepare": "husky"
   },
-  "keywords": [],
-  "type": "commonjs",
+  "dependencies": {
+    "@tailwindcss/vite": "^4.0.12",
+    "axios": "^1.8.2",
+    "bootstrap": "^5.3.3",
+    "dotenv": "^16.4.7",
+    "lucide-react": "^0.479.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
+    "sass": "^1.85.1",
+    "scss": "^0.2.4"
+  },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
-    "husky": "^9.1.7"
+    "@eslint/js": "^9.21.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "husky": "^9.1.7",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.12",
+    "vite": "^6.2.0"
   }
 }
