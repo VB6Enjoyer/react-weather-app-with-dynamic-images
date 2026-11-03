@@ -215,12 +215,12 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                             <b className="data-header non-selectable">Temperature</b>
                             <span>
                                 <p className="weather-value" id="temperature-value" style={{ color: getTemperatureColor(temperature) }}>{
-                                    temperature
+                                    Number.isFinite(temperature)
                                         ? `${Math.round(temperature)}`
                                         : "Error"}</p>
                                 <p className="inline">{tempScale}</p>
                             </span>
-                            {feelsLike
+                            {Number.isFinite(feelsLike)
                                 ? <span id="feels-like-container"> Feels like
                                     <p id="feels-like" style={{ color: getTemperatureColor(feelsLike) }}>{` ${Math.round(feelsLike)}`}</p>
                                     <p className="inline">{tempScale}</p>
