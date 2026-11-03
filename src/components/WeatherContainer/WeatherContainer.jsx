@@ -132,13 +132,16 @@ function WeatherContainer({ currentWeather }) {
         if (id >= 600 && id <= 622) index = 3;
         if (id == 701 || id == 741) index = 4;
         if (id == 711 || id == 721) index = 5;
-        if (id == 731 || id == 751) index = 6;
+        if (id == 731 || id == 751 || id == 761) index = 6;
         if (id == 762) index = 7;
         if (id == 771) index = 8;
         if (id == 781) index = 9;
         if (id == 800) index = 10;
         if (id == 801 || id == 802) index = 11;
         if (id == 803 || id == 804) index = 12;
+
+        // Unknown condition code: keep the current header instead of crashing
+        if (index === undefined) return;
 
         let linearGradient;
         if (day) {
