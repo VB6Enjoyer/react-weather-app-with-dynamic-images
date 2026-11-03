@@ -6,12 +6,9 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
     const [animationClass, setAnimationClass] = useState('');
     const [location, setLocation] = useState("");
     const [main, setMain] = useState("");
-    const [temperature, setTemperature] = useState(0);
-    const [feelsLike, setFeelsLike] = useState(0);
     const [weather, setWeather] = useState("");
     const [country, setCountry] = useState("");
     const [wind, setWind] = useState({});
-    const [windSpeed, setWindSpeed] = useState(0);
     const [sys, setSys] = useState({});
     const [timezone, setTimezone] = useState(0);
     const [tempScale, setTempScale] = useState("°C");
@@ -19,6 +16,18 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
     const [sunrise, setSunrise] = useState("");
     const [sunset, setSunset] = useState("");
     const [format12, setFormat12] = useState(true);
+
+    // The API returns Celsius and m/s; convert at render time so the selected
+    // units always apply to the data currently shown
+    const convertTemp = (celsius) => {
+        if (tempScale == "°F") return celsius * 9 / 5 + 32;
+        if (tempScale == "K") return celsius + 273.15;
+        return celsius;
+    }
+
+    const temperature = convertTemp(main.temp);
+    const feelsLike = convertTemp(main.feels_like);
+    const windSpeed = (wind.speed * (speedSys == "KM/h" ? 3.6 : 2.23694)).toFixed(1);
 
     const getFlag = () => {
         if (!country) {
@@ -93,16 +102,10 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
         e.preventDefault();
         if (tempScale == "°C") {
             setTempScale("°F");
-            setTemperature(main.temp * 9 / 5 + 32);
-            setFeelsLike(main.feels_like * 9 / 5 + 32);
         } else if (tempScale == "°F") {
             setTempScale("K");
-            setTemperature(main.temp + 273.15);
-            setFeelsLike(main.feels_like + 273.15);
         } else {
             setTempScale("°C");
-            setTemperature(main.temp);
-            setFeelsLike(main.feels_like);
         }
     }
 
@@ -131,13 +134,7 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
     const changeWindSpeed = (e) => {
         e.preventDefault();
 
-        if (speedSys == "KM/h") {
-            setSpeedSys("M/h");
-            setWindSpeed((wind.speed * 2.23694).toFixed(1));
-        } else {
-            setSpeedSys("KM/h");
-            setWindSpeed((windObj.speed * 3.6).toFixed(1));
-        }
+        setSpeedSys(speedSys == "KM/h" ? "M/h" : "KM/h");
     }
 
     const formatTime = useCallback((timestamp, format) => {
@@ -181,12 +178,9 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                 setAnimationClass('weather-display-update-active'); // After the fade-out completes, start fade-in
                 setLocation(loc);
                 setMain(mainObj);
-                setTemperature(mainObj.temp);
-                setFeelsLike(mainObj.feels_like)
                 setWeather(weatherObj);
                 setCountry(countryCode);
                 setWind(windObj);
-                setWindSpeed((windObj.speed * 3.6).toFixed(1));
                 setSys(sysObj);
                 setTimezone(timez);
                 setSunrise(formatTime(sysObj.sunrise));
