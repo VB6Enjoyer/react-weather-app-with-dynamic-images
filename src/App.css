@@ -19,6 +19,9 @@ body {
   /* Parallax is driven by a mousemove handler in App.jsx; image changes
      are faded in by the #overlay element, so they must not transition here */
   transition: background-position 0.1s ease-out;
+  /* Pinned to the viewport so a page taller than the screen (e.g. with the
+     forecast) doesn't reveal the image repeating */
+  background-attachment: fixed;
 }
 
 #overlay {
@@ -30,7 +33,7 @@ body {
   text-align: center;
   align-items: center;
   overflow: hidden;
-  position: absolute;
+  position: fixed; /* Matches the body's fixed background while it fades in */
   display: flex;
   flex-direction: column;
   justify-content: center;

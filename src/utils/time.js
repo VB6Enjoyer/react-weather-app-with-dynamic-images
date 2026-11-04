@@ -21,3 +21,15 @@ export const formatTime = (timestamp, timezone, use12Hour) => {
 // Short weekday ("Tue") in the location's local time
 export const formatWeekday = (timestamp, timezone) =>
     toLocalDate(timestamp, timezone).toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
+
+// Compact hour label for the forecast: "3 PM" or "15:00"
+export const formatHour = (timestamp, timezone, use12Hour) => {
+    const hours = toLocalDate(timestamp, timezone).getUTCHours();
+
+    if (use12Hour) return `${hours % 12 || 12} ${hours >= 12 ? "PM" : "AM"}`;
+    return `${String(hours).padStart(2, "0")}:00`;
+};
+
+// "2026-11-04" in the location's local time, for grouping by day
+export const localDateKey = (timestamp, timezone) =>
+    toLocalDate(timestamp, timezone).toISOString().slice(0, 10);

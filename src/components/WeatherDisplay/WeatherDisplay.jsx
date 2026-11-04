@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { formatTime, formatWeekday } from "../../utils/time";
 import useNow from "../../hooks/useNow";
 import temperatureColor from "../../utils/temperatureColor";
+import Forecast from "../Forecast/Forecast";
 
 // English country names for the flag's label and tooltip, e.g. "AR" -> "Argentina"
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
@@ -19,7 +20,7 @@ const toggleProps = (onToggle, hint) => ({
     },
 });
 
-function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj, timez, visible, tempColor }) {
+function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj, timez, forecastData, visible, tempColor }) {
     const [animationClass, setAnimationClass] = useState('');
     const [location, setLocation] = useState("");
     const [main, setMain] = useState("");
@@ -28,6 +29,7 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
     const [wind, setWind] = useState({});
     const [sys, setSys] = useState({});
     const [timezone, setTimezone] = useState(0);
+    const [forecast, setForecast] = useState(null);
     const [tempScale, setTempScale] = useState("°C");
     const [speedSys, setSpeedSys] = useState("KM/h")
     const [format12, setFormat12] = useState(true);
@@ -145,13 +147,14 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                 setWind(windObj);
                 setSys(sysObj);
                 setTimezone(timez);
+                setForecast(forecastData);
             }, 400); //
 
             return () => clearTimeout(timer);
         } else {
             setAnimationClass('weather-display-update');
         }
-    }, [location, visible, countryCode, loc, mainObj, sysObj, timez, weatherObj, windObj]);
+    }, [location, visible, countryCode, loc, mainObj, sysObj, timez, forecastData, weatherObj, windObj]);
 
     return (
         <div id="weather-display" className={animationClass}>
@@ -229,6 +232,14 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                         </span>
                     </div>
                 </div>
+
+                <Forecast
+                    forecast={forecast}
+                    timezone={timezone}
+                    now={now}
+                    convertTemp={convertTemp}
+                    tempScale={tempScale}
+                    use12Hour={format12} />
             </> : null
             }
         </div >

@@ -6,7 +6,8 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
 import GradientColors from "./gradientColors";
-import { getCurrentWeather } from "../../api/openWeather";
+import { getCurrentWeather, getForecast } from "../../api/openWeather";
+import summarizeForecast from "../../utils/forecast";
 import kyotoBackground from "../../assets/Kyoto.jpeg";
 
 const BACKGROUND_FADE_MS = 1500;
@@ -20,8 +21,23 @@ function WeatherContainer({ currentWeather }) {
     const [wind, setWind] = useState({});
     const [sys, setSys] = useState({});
     const [timezone, setTimezone] = useState(0);
+    const [forecast, setForecast] = useState(null);
     const [error, setError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Current weather first, since its coordinates resolve typed names, then
+    // the forecast. A failed forecast still shows the current weather.
+    const loadWeather = async (place) => {
+        const { data: current } = await getCurrentWeather(place);
+
+        try {
+            const { data } = await getForecast(current.coord);
+            return { current, forecast: summarizeForecast(data) };
+        } catch (error) {
+            console.error("Error fetching forecast:", error);
+            return { current, forecast: null };
+        }
+    };
 
     // place is { query } from the search box, or { lat, lon, label } from a
     // suggestion or geolocation (see api/openWeather.js)
@@ -41,23 +57,22 @@ function WeatherContainer({ currentWeather }) {
         // already updated the UI, so only make sure loading always ends
         try {
             await toast.promise(
-                getCurrentWeather(place),
+                loadWeather(place),
                 {
                     loading: 'Loading...',
-                    success: (response) => {
-                        if (response) {
-                            // A picked suggestion's name beats the nearest weather station's
-                            setLocation(place.label || response.data.name);
-                            setMain(response.data.main);
-                            setWeather(response.data.weather[0]);
-                            setCountry(response.data.sys.country);
-                            setWind(response.data.wind);
-                            setSys(response.data.sys);
-                            setTimezone(response.data.timezone);
+                    success: ({ current, forecast }) => {
+                        // A picked suggestion's name beats the nearest weather station's
+                        setLocation(place.label || current.name);
+                        setMain(current.main);
+                        setWeather(current.weather[0]);
+                        setCountry(current.sys.country);
+                        setWind(current.wind);
+                        setSys(current.sys);
+                        setTimezone(current.timezone);
+                        setForecast(forecast);
 
-                            setDisplay(true);
-                            setError(false);
-                        }
+                        setDisplay(true);
+                        setError(false);
                         return <b>Weather loaded!</b>;
                     },
                     error: (error) => {
@@ -258,6 +273,7 @@ function WeatherContainer({ currentWeather }) {
                     windObj={wind}
                     sysObj={sys}
                     timez={timezone}
+                    forecastData={forecast}
                     visible={display}
                     tempColor={setHeaderGradient} />
                 : ""}

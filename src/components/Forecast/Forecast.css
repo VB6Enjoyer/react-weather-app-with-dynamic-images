@@ -1,0 +1,93 @@
+#forecast {
+    margin-top: 16px;
+    text-align: left;
+}
+
+.forecast-heading {
+    margin: 12px 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.85;
+}
+
+.hourly-forecast,
+.daily-forecast {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hourly-forecast {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(44px, 1fr); /* All 8 fit in the desktop card; phones scroll */
+    gap: 4px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 4px;
+    border-radius: 10px;
+}
+
+.hourly-forecast:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.forecast-hour {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 2px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.12);
+    scroll-snap-align: start;
+    font-size: 13px;
+}
+
+.forecast-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.forecast-temp {
+    font-size: 15px;
+    font-weight: 700;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
+}
+
+.forecast-pop {
+    min-height: 1.25em;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.forecast-day {
+    display: grid;
+    grid-template-columns: 4em 40px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.forecast-day:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.forecast-weekday {
+    font-weight: 500;
+}
+
+.forecast-range {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+}
+
+.forecast-range-separator {
+    margin: 0 4px;
+    opacity: 0.6;
+}

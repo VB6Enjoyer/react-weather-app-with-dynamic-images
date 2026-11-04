@@ -27,3 +27,10 @@ export const searchCities = (query, config) =>
         .then((response) => response.data);
 
 export const isRequestCancelled = axios.isCancel;
+
+// 5-day forecast in 3-hour steps (40 entries) for a coordinate
+export const getForecast = ({ lat, lon }, config) =>
+    axios.get(`${BASE_URL}/data/2.5/forecast`, {
+        ...config,
+        params: { lat, lon, appid: API_KEY, units: "metric" },
+    });
