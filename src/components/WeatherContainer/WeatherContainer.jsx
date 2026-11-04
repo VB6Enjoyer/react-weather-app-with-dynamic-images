@@ -5,7 +5,7 @@ import "./WeatherContainer.css";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
-import GradientColors from "./gradientColors";
+import conditionGradient from "../../utils/conditionGradient";
 import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
 import useWeather from "../../hooks/useWeather";
 import { placeLabel } from "../../utils/placeUrl";
@@ -93,40 +93,12 @@ function WeatherContainer({ currentWeather }) {
         if (!tempColor) return;
         if (!conditions) return;
 
-        const id = conditions.id;
-        let index;
-
-        if (id >= 200 && id <= 232) index = 0;
-        if (id >= 300 && id <= 321) index = 1;
-        if (id >= 500 && id <= 531) index = 2;
-        if (id >= 600 && id <= 622) index = 3;
-        if (id == 701 || id == 741) index = 4;
-        if (id == 711 || id == 721) index = 5;
-        if (id == 731 || id == 751 || id == 761) index = 6;
-        if (id == 762) index = 7;
-        if (id == 771) index = 8;
-        if (id == 781) index = 9;
-        if (id == 800) index = 10;
-        if (id == 801 || id == 802) index = 11;
-        if (id == 803 || id == 804) index = 12;
+        const colors = conditionGradient(conditions.id, day);
 
         // Unknown condition code: keep the current header instead of crashing
-        if (index === undefined) return;
+        if (!colors) return;
 
-        let linearGradient;
-        if (day) {
-            linearGradient = `linear-gradient(to right,
-            ${GradientColors[index].day[0]},
-            ${GradientColors[index].day[1]},
-            ${GradientColors[index].day[2]},
-            ${tempColor});`
-        } else {
-            linearGradient = `linear-gradient(to right,
-            ${GradientColors[index].night[0]},
-            ${GradientColors[index].night[1]},
-            ${GradientColors[index].night[2]},
-            ${tempColor});`
-        }
+        const linearGradient = `linear-gradient(to right, ${colors.join(", ")}, ${tempColor});`;
 
         const styleElement = document.createElement('style');
         styleElement.id = 'dynamic-gradient-style';

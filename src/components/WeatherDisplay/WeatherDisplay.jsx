@@ -6,6 +6,8 @@ import useNow from "../../hooks/useNow";
 import temperatureColor from "../../utils/temperatureColor";
 import Forecast from "../Forecast/Forecast";
 import useStoredState from "../../hooks/useStoredState";
+import { SPEED_UNITS, TEMPERATURE_UNITS, convertSpeed, convertTemperature, nextUnit } from "../../utils/units";
+import windDirection from "../../utils/windDirection";
 
 // English country names for the flag's label and tooltip, e.g. "AR" -> "Argentina"
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
@@ -34,21 +36,17 @@ function WeatherDisplay({ data, tempColor }) {
     const [shown, setShown] = useState(null);
     const { location, country, conditions: weather, main, wind, sys, timezone, forecast } = shown ?? EMPTY;
     // Unit choices are remembered between visits
-    const [tempScale, setTempScale] = useStoredState("weather-app.tempScale", "°C", ["°C", "°F", "K"]);
-    const [speedSys, setSpeedSys] = useStoredState("weather-app.speedUnit", "KM/h", ["KM/h", "M/h"]);
+    const [tempScale, setTempScale] = useStoredState("weather-app.tempScale", "°C", TEMPERATURE_UNITS);
+    const [speedSys, setSpeedSys] = useStoredState("weather-app.speedUnit", "KM/h", SPEED_UNITS);
     const [format12, setFormat12] = useStoredState("weather-app.use12Hour", true, [true, false]);
 
-    // The API returns Celsius and m/s; convert at render time so the selected
-    // units always apply to the data currently shown
-    const convertTemp = (celsius) => {
-        if (tempScale == "°F") return celsius * 9 / 5 + 32;
-        if (tempScale == "K") return celsius + 273.15;
-        return celsius;
-    }
+    // Convert at render time so the selected units always apply to the data
+    // currently shown
+    const convertTemp = (celsius) => convertTemperature(celsius, tempScale);
 
     const temperature = convertTemp(main.temp);
     const feelsLike = convertTemp(main.feels_like);
-    const windSpeed = (wind.speed * (speedSys == "KM/h" ? 3.6 : 2.23694)).toFixed(1);
+    const windSpeed = convertSpeed(wind.speed, speedSys).toFixed(1);
 
     const getFlag = () => {
         if (!country) {
@@ -87,41 +85,18 @@ function WeatherDisplay({ data, tempColor }) {
 
     const changeTempScale = (e) => {
         e.preventDefault();
-        if (tempScale == "°C") {
-            setTempScale("°F");
-        } else if (tempScale == "°F") {
-            setTempScale("K");
-        } else {
-            setTempScale("°C");
-        }
+        setTempScale(nextUnit(TEMPERATURE_UNITS, tempScale));
     }
 
     const getWindDirection = () => {
-        const deg = wind.deg;
-
-        if ((deg >= 0 && deg <= 22.5) || deg > 337.5) {
-            return <p id="wind-direction">N ⬆️</p>
-        } else if (deg > 22.5 && deg <= 67.5) {
-            return <p id="wind-direction">NE ↗️</p>
-        } else if (deg > 67.5 && deg <= 112.5) {
-            return <p id="wind-direction">E ➡️</p>
-        } else if (deg > 112.5 && deg <= 157.5) {
-            return <p id="wind-direction">SE ↘️</p>
-        } else if (deg > 157.5 && deg <= 202.5) {
-            return <p id="wind-direction">S ⬇️</p>
-        } else if (deg > 202.5 && deg <= 247.5) {
-            return <p id="wind-direction">SW ↙️</p>
-        } else if (deg > 247.5 && deg <= 292.5) {
-            return <p id="wind-direction">W ⬅️</p>
-        } else if (deg > 292.5 && deg <= 337.5) {
-            return <p id="wind-direction">NW ↖️</p>
-        }
+        const direction = windDirection(wind.deg);
+        return direction && <p id="wind-direction">{direction.label} {direction.arrow}</p>;
     }
 
     const changeWindSpeed = (e) => {
         e.preventDefault();
 
-        setSpeedSys(speedSys == "KM/h" ? "M/h" : "KM/h");
+        setSpeedSys(nextUnit(SPEED_UNITS, speedSys));
     }
 
     const now = useNow();
