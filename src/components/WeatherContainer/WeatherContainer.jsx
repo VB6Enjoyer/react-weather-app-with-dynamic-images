@@ -6,6 +6,7 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
 import GradientColors from "./gradientColors";
+import { getCurrentWeather } from "../../api/openWeather";
 import kyotoBackground from "../../assets/Kyoto.jpeg";
 
 const BACKGROUND_FADE_MS = 1500;
@@ -38,13 +39,7 @@ function WeatherContainer({ currentWeather }) {
         // already updated the UI, so only make sure loading always ends
         try {
             await toast.promise(
-                axios.get("https://api.openweathermap.org/data/2.5/weather", {
-                    params: {
-                        q: search.trim(),
-                        appid: import.meta.env.VITE_OPENWEATHER_API_TOKEN,
-                        units: "metric",
-                    },
-                }),
+                getCurrentWeather({ query: search }),
                 {
                     loading: 'Loading...',
                     success: (response) => {
