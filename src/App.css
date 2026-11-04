@@ -15,9 +15,9 @@ body {
   background-image: url("./assets/Kyoto.jpeg");
   background-size: 110%;
   font-family: "Ubuntu", "sans-serif";
+  /* Parallax is driven by a mousemove handler in App.jsx; image changes
+     are faded in by the #overlay element, so they must not transition here */
   transition: background-position 0.1s ease-out;
-  transition: background-image 1s ease-in-out;
-  /* Triggered by an event handler in the jsx file */
 }
 
 #overlay {

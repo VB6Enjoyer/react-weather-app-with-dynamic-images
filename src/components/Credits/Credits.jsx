@@ -1,5 +1,3 @@
-"use client"
-
 import "./Credits.scss"
 
 export default function Credits() {
