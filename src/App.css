@@ -14,51 +14,7 @@
 }
 
 body {
-  background-image: url("./assets/Kyoto.jpeg");
   font-family: "Ubuntu", "sans-serif";
-  /* Parallax is driven by a mousemove handler in App.jsx; image changes
-     are faded in by the #overlay element, so they must not transition here */
-  transition: background-position 0.1s ease-out;
-  /* Pinned to the viewport so a page taller than the screen (e.g. with the
-     forecast) doesn't reveal the image repeating */
-  background-attachment: fixed;
-}
-
-#overlay {
-  background-image: url("./assets/Kyoto.jpeg");
-  transition: background-position 0.1s ease-out;
-  max-width: 100%;
-  min-height: 100vh;
-  margin: 0 auto;
-  text-align: center;
-  align-items: center;
-  overflow: hidden;
-  position: fixed; /* Matches the body's fixed background while it fades in */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: -1;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-/* Small or portrait screens: fill the viewport without repeating. Wide
-   screens with a mouse keep the oversized image the parallax pans across */
-body,
-#overlay {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-@media (hover: hover) and (min-aspect-ratio: 4/3) {
-  body,
-  #overlay {
-    background-size: 110%;
-    background-repeat: repeat;
-  }
 }
 
 main {
@@ -85,7 +41,6 @@ main {
     animation: none !important;
   }
 
-  body,
   .interactive-container,
   #weather-display,
   .weather-display-update,
