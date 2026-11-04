@@ -75,6 +75,30 @@ function WeatherContainer({ currentWeather }) {
         }
     }
 
+    const locateUser = () => {
+        if (!navigator.geolocation) {
+            toast.error("Your browser can't share its location");
+            return;
+        }
+
+        const toastId = toast.loading("Finding your location...");
+
+        navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+                toast.dismiss(toastId);
+                fetchWeatherData({ lat: coords.latitude, lon: coords.longitude });
+            },
+            (error) => {
+                const message = error.code === error.PERMISSION_DENIED
+                    ? "Location access was denied"
+                    : "Couldn't find your location";
+                toast.error(message, { id: toastId });
+            },
+            // City-level accuracy is plenty, and a recent position can be reused
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 10 * 60 * 1000 }
+        );
+    };
+
     // Fetch and cross-fade the background once per location
     useEffect(() => {
         if (!location) return;
@@ -223,7 +247,7 @@ function WeatherContainer({ currentWeather }) {
         <div id="weather-container" className="w-full rounded-lg border border-gray-200 bg-white/30 backdrop-blur-md p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800/30">
             {createPortal(<Toaster position="bottom-center" reverseOrder={false} />, document.body)}
             <h1 className="text-2xl font-bold mb-4" id="app-header">Weather App</h1>
-            <WeatherSearch fetchData={fetchWeatherData} isLoading={isLoading} />
+            <WeatherSearch fetchData={fetchWeatherData} isLoading={isLoading} onLocate={locateUser} />
 
             {!error
                 ? <WeatherDisplay

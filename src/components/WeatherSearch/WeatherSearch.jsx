@@ -1,5 +1,6 @@
 import "./WeatherSearch.css";
 import { useEffect, useId, useRef, useState } from "react";
+import { LocateFixed } from "lucide-react";
 import { isRequestCancelled, searchCities } from "../../api/openWeather";
 
 const MIN_QUERY_LENGTH = 2;
@@ -24,7 +25,7 @@ const uniqueCities = (cities) => {
     });
 };
 
-function WeatherSearch({ fetchData, isLoading }) {
+function WeatherSearch({ fetchData, isLoading, onLocate }) {
     const [search, setSearch] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
@@ -140,6 +141,17 @@ function WeatherSearch({ fetchData, isLoading }) {
                     onFocus={() => setIsOpen(true)}
                     onBlur={closeSuggestions}
                 />
+
+                <button
+                    id="locate-button"
+                    type="button"
+                    aria-label="Use my location"
+                    title="Use my location"
+                    disabled={isLoading}
+                    onClick={onLocate}
+                >
+                    <LocateFixed aria-hidden="true" />
+                </button>
 
                 {showSuggestions && (
                     <ul id={listId} role="listbox" aria-label="Suggested locations" className="suggestions">
