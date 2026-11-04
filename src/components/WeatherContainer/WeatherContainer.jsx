@@ -35,10 +35,14 @@ function WeatherContainer({ currentWeather }) {
         setError(null);
 
 
-        const API_KEY = import.meta.env.VITE_OPENWEATHER_API_TOKEN;
-
         await toast.promise(
-            axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${search}&id=524901&appid=${API_KEY}&units=metric`),
+            axios.get("https://api.openweathermap.org/data/2.5/weather", {
+                params: {
+                    q: search.trim(),
+                    appid: import.meta.env.VITE_OPENWEATHER_API_TOKEN,
+                    units: "metric",
+                },
+            }),
             {
                 loading: 'Loading...',
                 success: (response) => {
