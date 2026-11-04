@@ -2,6 +2,20 @@ import "./WeatherDisplay.css";
 import { Droplets, Sunrise, Sunset, Thermometer, Cloud, Wind } from "lucide-react"
 import { useEffect, useState } from "react";
 
+// English country names for the flag's label and tooltip, e.g. "AR" -> "Argentina"
+const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+
+// Makes a data card behave like a button for keyboard and screen reader users
+const toggleProps = (onToggle, hint) => ({
+    role: "button",
+    tabIndex: 0,
+    title: hint,
+    onClick: onToggle,
+    onKeyDown: (e) => {
+        if (e.key === "Enter" || e.key === " ") onToggle(e); // Handlers call preventDefault, so Space won't scroll
+    },
+});
+
 function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj, timez, visible, tempColor }) {
     const [animationClass, setAnimationClass] = useState('');
     const [location, setLocation] = useState("");
@@ -32,7 +46,9 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
             return;
         }
 
-        return <span id="country-flag" title={country}>{country.toUpperCase().split("").map(char => String.fromCodePoint(0x1F1E6 + char.charCodeAt(0) - 65)).join("")}</span>;
+        const countryName = regionNames.of(country.toUpperCase()) || country;
+
+        return <span id="country-flag" role="img" aria-label={countryName} title={countryName}>{country.toUpperCase().split("").map(char => String.fromCodePoint(0x1F1E6 + char.charCodeAt(0) - 65)).join("")}</span>;
     }
 
     const getTemperatureColor = (temp) => {
@@ -84,13 +100,13 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
 
     const dangerWarning = () => {
         if ([202, 212, 221, 232].includes(weather.id)) {
-            return <p id="warning-icon" title="Dangerous thunderstorms">⚠️</p>
+            return <p id="warning-icon" role="img" aria-label="Dangerous thunderstorms" title="Dangerous thunderstorms">⚠️</p>
         } else if ([503, 504, 511, 522].includes(weather.id)) {
-            return <p id="warning-icon" title="Heavy rain with flood risk">⚠️</p>
+            return <p id="warning-icon" role="img" aria-label="Heavy rain with flood risk" title="Heavy rain with flood risk">⚠️</p>
         } else if ([602, 613, 621, 622].includes(weather.id)) {
-            return <p id="warning-icon" title="Heavy snow and icing">⚠️</p>
+            return <p id="warning-icon" role="img" aria-label="Heavy snow and icing" title="Heavy snow and icing">⚠️</p>
         } else if ([762, 771, 781].includes(weather.id)) {
-            return <p id="warning-icon" title="Hazardous atmospheric conditions">☣️</p>
+            return <p id="warning-icon" role="img" aria-label="Hazardous atmospheric conditions" title="Hazardous atmospheric conditions">☣️</p>
         } else {
             return "";
         }
@@ -194,8 +210,8 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                 </span>
 
                 <div id="data-container">
-                    <div className="weather-data-container interactive-container" id="temperature-container" onClick={(e) => changeTempScale(e)}>
-                        <Thermometer className="data-icon" />
+                    <div className="weather-data-container interactive-container" id="temperature-container" {...toggleProps(changeTempScale, "Switch between °C, °F and K")}>
+                        <Thermometer className="data-icon" aria-hidden="true" />
                         <span id="temperature" className="weather-data">
                             <b className="data-header non-selectable">Temperature</b>
                             <span>
@@ -215,7 +231,7 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                     </div>
 
                     <div className="weather-data-container">
-                        <Cloud className="data-icon" />
+                        <Cloud className="data-icon" aria-hidden="true" />
                         <span id="weather" className="weather-data">
                             <b className="data-header non-selectable">Weather</b>
                             <p className="weather-value" id="weather-value">{`${weather.main || "Error"}`}</p>
@@ -223,15 +239,15 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                     </div>
 
                     <div className="weather-data-container">
-                        <Droplets className="data-icon" />
+                        <Droplets className="data-icon" aria-hidden="true" />
                         <span id="humidity" className="weather-data">
                             <b className="data-header non-selectable">Humidity</b>
                             <p className="weather-value" id="humidity-value">{main.humidity}%</p>
                         </span>
                     </div>
 
-                    <div className="weather-data-container interactive-container" onClick={(e) => changeWindSpeed(e)}>
-                        <Wind className="data-icon" />
+                    <div className="weather-data-container interactive-container" {...toggleProps(changeWindSpeed, "Switch between km/h and mph")}>
+                        <Wind className="data-icon" aria-hidden="true" />
                         <span id="wind" className="weather-data">
                             <b className="data-header non-selectable">Wind </b>
                             <span className="weather-value" id="wind-value">{
@@ -243,16 +259,16 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                         </span>
                     </div>
 
-                    <div className="weather-data-container interactive-container" onClick={(e) => changeTimeFormat(e)}>
-                        <Sunrise className="data-icon" />
+                    <div className="weather-data-container interactive-container" {...toggleProps(changeTimeFormat, "Switch between 12-hour and 24-hour time")}>
+                        <Sunrise className="data-icon" aria-hidden="true" />
                         <span id="sunrise" className="weather-data">
                             <b className="data-header non-selectable">Sunrise </b>
                             <p className="weather-value inline" id="sunrise-value">{sunrise}</p>
                         </span>
                     </div>
 
-                    <div className="weather-data-container interactive-container" onClick={(e) => changeTimeFormat(e)}>
-                        <Sunset className="data-icon" />
+                    <div className="weather-data-container interactive-container" {...toggleProps(changeTimeFormat, "Switch between 12-hour and 24-hour time")}>
+                        <Sunset className="data-icon" aria-hidden="true" />
                         <span id="sunset" className="weather-data">
                             <b className="data-header non-selectable">Sunset </b>
                             <p className="weather-value inline" id="sunset-value">{sunset}</p>

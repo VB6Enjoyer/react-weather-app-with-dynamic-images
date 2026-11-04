@@ -103,9 +103,15 @@
     border-radius: 10px;
 }
 
-.interactive-container:hover {
+.interactive-container:hover,
+.interactive-container:focus-visible {
     background-color: rgba(255, 255, 255, 0.2);
     box-shadow: 0px 0px 0px 1px rgba(255, 255, 255, 0.2);
+}
+
+.interactive-container:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
 }
 
 #temperature {

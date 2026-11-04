@@ -15,7 +15,7 @@ function WeatherSearch({ fetchData, isLoading }) {
 
     return (
         <form id="weather-search" onSubmit={(e) => handleSearch(e)}>
-            <input id="search-bar" type="text" placeholder="Location" onChange={(e) => setSearch(e.target.value)}></input>
+            <input id="search-bar" type="text" placeholder="Location" aria-label="Location" enterKeyHint="search" onChange={(e) => setSearch(e.target.value)}></input>
             <button id="search-button" type="submit" disabled={isLoading}>Search</button>
         </form>
     )
