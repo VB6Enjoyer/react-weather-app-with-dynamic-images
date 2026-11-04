@@ -4,29 +4,25 @@ import "./Thunder.css"
 import { useEffect } from "react";
 
 function Thunder() {
-    // ! This isn't particularly great since the delay is permanently the same, but it works for now
     useEffect(() => {
         const thunderElement = document.getElementById('thunder');
+        let timeoutId;
+
+        const randomDelay = () => (Math.floor(Math.random() * 16) + 5) * 1000; // 5-20 seconds
 
         const triggerThunderAnimation = () => {
             thunderElement.classList.remove('animate-thunder');
             void thunderElement.offsetWidth; // Forces reflow
             thunderElement.classList.add('animate-thunder');
+
+            // Schedule the next strike with a fresh random delay
+            timeoutId = setTimeout(triggerThunderAnimation, randomDelay());
         };
 
-        // First trigger after random delay
-        const firstTimeout = setTimeout(() => {
-            triggerThunderAnimation(); // Trigger animation after delay
+        timeoutId = setTimeout(triggerThunderAnimation, randomDelay());
 
-            // Start interval after first animation
-            const intervalId = setInterval(triggerThunderAnimation, (Math.floor(Math.random() * 16) + 5) * 1000);
-
-            // Cleanup interval on component unmount
-            return () => clearInterval(intervalId);
-        }, (Math.floor(Math.random() * 16) + 5) * 1000);  // Only delay this first trigger
-
-        // Cleanup the timeout on component unmount
-        return () => clearTimeout(firstTimeout);
+        // Always holds the pending timeout, so this stops the chain on unmount
+        return () => clearTimeout(timeoutId);
     }, []);
 
     return (
