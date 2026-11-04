@@ -1,0 +1,45 @@
+/* Fills the viewport behind everything, whatever the page height */
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Oversized by 5% on each side so the parallax shift never shows an edge.
+   The shift comes from --parallax-x/--parallax-y (-1 to 1), set by App.jsx */
+.background-layer {
+    position: absolute;
+    inset: -5%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transform: translate(calc(var(--parallax-x, 0) * -3%), calc(var(--parallax-y, 0) * -3%));
+    transition: transform 0.1s ease-out;
+    will-change: transform;
+}
+
+.background-layer.fade-in {
+    animation: background-fade-in 1.5s ease-in-out both;
+}
+
+@keyframes background-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .background-layer {
+        transition: none;
+    }
+
+    .background-layer.fade-in {
+        animation: none;
+    }
+}

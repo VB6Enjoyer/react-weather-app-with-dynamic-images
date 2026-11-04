@@ -5,24 +5,25 @@ import WeatherContainer from './components/WeatherContainer/WeatherContainer'
 import Snowflakes from './components/Snowflakes/Snowflakes';
 import Thunder from './components/Thunder/Thunder';
 import Credits from './components/Credits/Credits';
+import Background from './components/Background/Background';
 import usePrefersReducedMotion from './hooks/usePrefersReducedMotion';
+import kyotoBackground from './assets/Kyoto.jpeg';
 
 function App() {
   const [weather, setWeather] = useState(0);
+  const [backgroundUrl, setBackgroundUrl] = useState(kyotoBackground);
   const reduceMotion = usePrefersReducedMotion();
 
   // Parallax effect
   useEffect(() => {
     if (reduceMotion) return;
 
+    // Pointer position from -1 to 1 on each axis; Background.css shifts the
+    // photo slightly against it
+    const root = document.documentElement;
     const handleMouseMove = (e) => {
-      const overlay = document.getElementById("overlay");
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
-      const position = `${x * 33}% ${y * 66}%`;
-
-      document.body.style.backgroundPosition = position;
-      if (overlay) overlay.style.backgroundPosition = position;
+      root.style.setProperty('--parallax-x', (e.clientX / window.innerWidth) * 2 - 1);
+      root.style.setProperty('--parallax-y', (e.clientY / window.innerHeight) * 2 - 1);
     };
 
     document.addEventListener('mousemove', handleMouseMove);
@@ -30,9 +31,8 @@ function App() {
       document.removeEventListener('mousemove', handleMouseMove);
 
       // Recenter the background if motion gets turned off mid-session
-      const overlay = document.getElementById("overlay");
-      document.body.style.backgroundPosition = "";
-      if (overlay) overlay.style.backgroundPosition = "";
+      root.style.removeProperty('--parallax-x');
+      root.style.removeProperty('--parallax-y');
     };
   }, [reduceMotion]);
 
@@ -43,8 +43,8 @@ function App() {
   return (
     <React.Fragment>
       <main>
-        <WeatherContainer currentWeather={currentWeather} />
-        <div id="overlay" style={{ opacity: 0 }}></div>
+        <Background url={backgroundUrl} />
+        <WeatherContainer currentWeather={currentWeather} onBackgroundChange={setBackgroundUrl} />
         {/* Weather effects are skipped when the user asks for reduced motion */}
         {reduceMotion ? "" : weather >= 200 && weather <= 531 ?
           <>

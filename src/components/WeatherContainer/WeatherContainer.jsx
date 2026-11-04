@@ -11,48 +11,19 @@ import useWeather from "../../hooks/useWeather";
 import { placeLabel } from "../../utils/placeUrl";
 import kyotoBackground from "../../assets/Kyoto.jpeg";
 
-const BACKGROUND_FADE_MS = 1500;
-
-function WeatherContainer({ currentWeather }) {
+function WeatherContainer({ currentWeather, onBackgroundChange }) {
     const { weather, isLoading, loadPlace, locateUser, initialPlace } = useWeather();
     const location = weather?.location;
     const conditions = weather?.conditions;
 
-    // Fetch and cross-fade the background once per location
+    // Look up a photo of the place once per location; App's Background
+    // component preloads and fades it in
     useEffect(() => {
         if (!location) return;
-
-        const overlay = document.getElementById("overlay");
-        if (!overlay) return;
 
         // Set when the location changes again, so a slow response can't
         // replace the background of a newer search
         let cancelled = false;
-        let fadeTimer;
-
-        const showBackground = (url) => {
-            // Preload so the fade only starts once the image is ready
-            const img = new Image();
-            img.onload = () => {
-                if (cancelled) return;
-
-                // Fade the new image in on the overlay...
-                overlay.style.transition = "none";
-                overlay.style.opacity = "0";
-                overlay.style.backgroundImage = `url('${url}')`;
-                void overlay.offsetWidth; // Forces reflow so the fade starts from 0
-                overlay.style.transition = `opacity ${BACKGROUND_FADE_MS}ms ease-in-out`;
-                overlay.style.opacity = "1";
-
-                // ...then move it to the body and hide the overlay for the next fade
-                fadeTimer = setTimeout(() => {
-                    document.body.style.backgroundImage = `url('${url}')`;
-                    overlay.style.transition = "none";
-                    overlay.style.opacity = "0";
-                }, BACKGROUND_FADE_MS);
-            };
-            img.src = url;
-        };
 
         const fetchBackground = async () => {
             try {
@@ -68,13 +39,13 @@ function WeatherContainer({ currentWeather }) {
                 const photo = response.data.results[0];
                 if (photo) {
                     // urls.full is the multi-megabyte original; ask for a screen-sized version
-                    showBackground(`${photo.urls.raw}&w=2400&q=80&auto=format`);
+                    onBackgroundChange(`${photo.urls.raw}&w=2400&q=80&auto=format`);
                 } else {
                     toast.error(
                         <div>
                             <strong>Error:</strong> Couldn't find an image for the city
                         </div>);
-                    showBackground(kyotoBackground);
+                    onBackgroundChange(kyotoBackground);
                 }
             } catch (error) {
                 if (!cancelled) console.error("Error fetching city image:", error);
@@ -85,9 +56,8 @@ function WeatherContainer({ currentWeather }) {
 
         return () => {
             cancelled = true;
-            clearTimeout(fadeTimer);
         };
-    }, [location]);
+    }, [location, onBackgroundChange]);
 
     const setHeaderGradient = useCallback((tempColor, day) => {
         if (!tempColor) return;
