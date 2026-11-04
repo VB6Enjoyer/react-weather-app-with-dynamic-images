@@ -73,3 +73,20 @@ main {
     padding-bottom: 48px;
   }
 }
+
+/* Respect the OS "reduce motion" setting. Rain, snow, lightning and
+   parallax are skipped in App.jsx; this stops the remaining animations */
+@media (prefers-reduced-motion: reduce) {
+  #app-header,
+  #credits-container {
+    animation: none !important;
+  }
+
+  body,
+  .interactive-container,
+  #weather-display,
+  .weather-display-update,
+  .weather-display-update-active {
+    transition: none !important;
+  }
+}

@@ -5,12 +5,16 @@ import WeatherContainer from './components/WeatherContainer/WeatherContainer'
 import Snowflakes from './components/Snowflakes/Snowflakes';
 import Thunder from './components/Thunder/Thunder';
 import Credits from './components/Credits/Credits';
+import usePrefersReducedMotion from './hooks/usePrefersReducedMotion';
 
 function App() {
   const [weather, setWeather] = useState(0);
+  const reduceMotion = usePrefersReducedMotion();
 
   // Parallax effect
   useEffect(() => {
+    if (reduceMotion) return;
+
     const handleMouseMove = (e) => {
       const overlay = document.getElementById("overlay");
       const x = e.clientX / window.innerWidth;
@@ -22,8 +26,15 @@ function App() {
     };
 
     document.addEventListener('mousemove', handleMouseMove);
-    return () => document.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+
+      // Recenter the background if motion gets turned off mid-session
+      const overlay = document.getElementById("overlay");
+      document.body.style.backgroundPosition = "";
+      if (overlay) overlay.style.backgroundPosition = "";
+    };
+  }, [reduceMotion]);
 
   const currentWeather = (id) => {
     setWeather(id);
@@ -34,7 +45,8 @@ function App() {
       <main>
         <WeatherContainer currentWeather={currentWeather} />
         <div id="overlay" style={{ opacity: 0 }}></div>
-        {weather >= 200 && weather <= 531 ?
+        {/* Weather effects are skipped when the user asks for reduced motion */}
+        {reduceMotion ? "" : weather >= 200 && weather <= 531 ?
           <>
             <RainEffect />
             {weather >= 200 && weather <= 232 && <Thunder />}
