@@ -1,6 +1,6 @@
 import WeatherSearch from "../WeatherSearch/WeatherSearch";
 import WeatherDisplay from "../WeatherDisplay/WeatherDisplay";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./WeatherContainer.css";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -8,9 +8,12 @@ import { createPortal } from "react-dom";
 import GradientColors from "./gradientColors";
 import { getCurrentWeather, getForecast } from "../../api/openWeather";
 import summarizeForecast from "../../utils/forecast";
+import { placeFromSearch, placeLabel, placeToSearch } from "../../utils/placeUrl";
+import { readStored, writeStored } from "../../utils/storage";
 import kyotoBackground from "../../assets/Kyoto.jpeg";
 
 const BACKGROUND_FADE_MS = 1500;
+const LAST_PLACE_KEY = "weather-app.lastPlace";
 
 function WeatherContainer({ currentWeather }) {
     const [display, setDisplay] = useState(false);
@@ -24,6 +27,21 @@ function WeatherContainer({ currentWeather }) {
     const [forecast, setForecast] = useState(null);
     const [error, setError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    // A place in the URL (a shared link) wins over the last place visited
+    const [initialPlace] = useState(() =>
+        placeFromSearch(window.location.search) ??
+        placeFromSearch(readStored(LAST_PLACE_KEY, "", (value) => typeof value === "string"))
+    );
+    const initialLoadStarted = useRef(false);
+
+    // Put the place in the address bar so the page can be shared or
+    // bookmarked, and remember it for the next visit
+    const rememberPlace = (place, resolvedName) => {
+        const search = placeToSearch(place, resolvedName);
+        window.history.replaceState(null, "", search);
+        writeStored(LAST_PLACE_KEY, search);
+    };
 
     // Current weather first, since its coordinates resolve typed names, then
     // the forecast. A failed forecast still shows the current weather.
@@ -70,6 +88,7 @@ function WeatherContainer({ currentWeather }) {
                         setSys(current.sys);
                         setTimezone(current.timezone);
                         setForecast(forecast);
+                        rememberPlace(place, current.name);
 
                         setDisplay(true);
                         setError(false);
@@ -89,6 +108,15 @@ function WeatherContainer({ currentWeather }) {
             setIsLoading(false);
         }
     }
+
+    // Load the shared or last place once on start (the ref keeps StrictMode's
+    // double-run in development from fetching twice)
+    useEffect(() => {
+        if (initialLoadStarted.current || !initialPlace) return;
+        initialLoadStarted.current = true;
+        fetchWeatherData(initialPlace);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount by design
+    }, []);
 
     const locateUser = () => {
         if (!navigator.geolocation) {
@@ -262,7 +290,7 @@ function WeatherContainer({ currentWeather }) {
         <div id="weather-container" className="w-full rounded-lg border border-gray-200 bg-white/30 backdrop-blur-md p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800/30">
             {createPortal(<Toaster position="bottom-center" reverseOrder={false} />, document.body)}
             <h1 className="text-2xl font-bold mb-4" id="app-header">Weather App</h1>
-            <WeatherSearch fetchData={fetchWeatherData} isLoading={isLoading} onLocate={locateUser} />
+            <WeatherSearch fetchData={fetchWeatherData} isLoading={isLoading} onLocate={locateUser} initialValue={placeLabel(initialPlace)} />
 
             {!error
                 ? <WeatherDisplay

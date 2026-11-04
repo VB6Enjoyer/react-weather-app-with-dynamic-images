@@ -25,8 +25,8 @@ const uniqueCities = (cities) => {
     });
 };
 
-function WeatherSearch({ fetchData, isLoading, onLocate }) {
-    const [search, setSearch] = useState("");
+function WeatherSearch({ fetchData, isLoading, onLocate, initialValue = "" }) {
+    const [search, setSearch] = useState(initialValue);
     const [suggestions, setSuggestions] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(-1);

@@ -5,6 +5,7 @@ import { formatTime, formatWeekday } from "../../utils/time";
 import useNow from "../../hooks/useNow";
 import temperatureColor from "../../utils/temperatureColor";
 import Forecast from "../Forecast/Forecast";
+import useStoredState from "../../hooks/useStoredState";
 
 // English country names for the flag's label and tooltip, e.g. "AR" -> "Argentina"
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
@@ -30,9 +31,10 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
     const [sys, setSys] = useState({});
     const [timezone, setTimezone] = useState(0);
     const [forecast, setForecast] = useState(null);
-    const [tempScale, setTempScale] = useState("°C");
-    const [speedSys, setSpeedSys] = useState("KM/h")
-    const [format12, setFormat12] = useState(true);
+    // Unit choices are remembered between visits
+    const [tempScale, setTempScale] = useStoredState("weather-app.tempScale", "°C", ["°C", "°F", "K"]);
+    const [speedSys, setSpeedSys] = useStoredState("weather-app.speedUnit", "KM/h", ["KM/h", "M/h"]);
+    const [format12, setFormat12] = useStoredState("weather-app.use12Hour", true, [true, false]);
 
     // The API returns Celsius and m/s; convert at render time so the selected
     // units always apply to the data currently shown
