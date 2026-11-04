@@ -1,5 +1,3 @@
-"use client"
-
 import "./Snowflakes.css"
 
 // * CSSnowflakes by PavelTheCoder (https://pajasevi.github.io/CSSnowflakes/)

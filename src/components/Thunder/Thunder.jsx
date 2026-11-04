@@ -1,5 +1,3 @@
-"use client"
-
 import "./Thunder.css"
 import { useEffect } from "react";
 
