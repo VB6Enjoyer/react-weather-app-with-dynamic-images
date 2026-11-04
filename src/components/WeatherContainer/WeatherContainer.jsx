@@ -32,44 +32,49 @@ function WeatherContainer({ currentWeather }) {
         }
 
         setIsLoading(true);
-        setError(null);
+        setError(false);
 
+        // toast.promise rethrows on failure; the error handler below has
+        // already updated the UI, so only make sure loading always ends
+        try {
+            await toast.promise(
+                axios.get("https://api.openweathermap.org/data/2.5/weather", {
+                    params: {
+                        q: search.trim(),
+                        appid: import.meta.env.VITE_OPENWEATHER_API_TOKEN,
+                        units: "metric",
+                    },
+                }),
+                {
+                    loading: 'Loading...',
+                    success: (response) => {
+                        if (response) {
+                            setLocation(response.data.name);
+                            setMain(response.data.main);
+                            setWeather(response.data.weather[0]);
+                            setCountry(response.data.sys.country);
+                            setWind(response.data.wind);
+                            setSys(response.data.sys);
+                            setTimezone(response.data.timezone);
 
-        await toast.promise(
-            axios.get("https://api.openweathermap.org/data/2.5/weather", {
-                params: {
-                    q: search.trim(),
-                    appid: import.meta.env.VITE_OPENWEATHER_API_TOKEN,
-                    units: "metric",
-                },
-            }),
-            {
-                loading: 'Loading...',
-                success: (response) => {
-                    if (response) {
-                        setLocation(response.data.name);
-                        setMain(response.data.main);
-                        setWeather(response.data.weather[0]);
-                        setCountry(response.data.sys.country);
-                        setWind(response.data.wind);
-                        setSys(response.data.sys);
-                        setTimezone(response.data.timezone);
-
-                        setDisplay(true);
-                        setError(false);
-                    }
-                    return <b>Weather loaded!</b>;
-                },
-                error: (error) => {
-                    setDisplay(false);
-                    setError(true);
-                    console.error(error);
-                    return <strong>Couldn't find the specified location</strong>;
-                },
-            }
-        );
-
-        setIsLoading(false);
+                            setDisplay(true);
+                            setError(false);
+                        }
+                        return <b>Weather loaded!</b>;
+                    },
+                    error: (error) => {
+                        setDisplay(false);
+                        setError(true);
+                        console.error(error);
+                        return <strong>Couldn't find the specified location</strong>;
+                    },
+                }
+            );
+        } catch {
+            // Handled by the toast's error callback
+        } finally {
+            setIsLoading(false);
+        }
         return search;
     }
 
