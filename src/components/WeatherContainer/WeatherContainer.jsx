@@ -6,6 +6,9 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
 import GradientColors from "./gradientColors";
+import kyotoBackground from "../../assets/Kyoto.jpeg";
+
+const BACKGROUND_FADE_MS = 1500;
 
 function WeatherContainer({ currentWeather }) {
     const [display, setDisplay] = useState(false);
@@ -16,7 +19,6 @@ function WeatherContainer({ currentWeather }) {
     const [wind, setWind] = useState({});
     const [sys, setSys] = useState({});
     const [timezone, setTimezone] = useState(0);
-    const [prevBg, setPrevBg] = useState("./assets/Kyoto.jpeg");
     const [error, setError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -67,57 +69,76 @@ function WeatherContainer({ currentWeather }) {
         return search;
     }
 
-    const changeBackgroundImage = useCallback(async () => {
-        if (!location) {
-            return;
-        }
+    // Fetch and cross-fade the background once per location
+    useEffect(() => {
+        if (!location) return;
 
-        const API_KEY = import.meta.env.VITE_UNSPLASH_API_TOKEN;
         const overlay = document.getElementById("overlay");
         if (!overlay) return;
 
-        try {
-            const response = await axios.get(
-                `https://api.unsplash.com/search/photos?query=${location}&client_id=${API_KEY}&per_page=1`
-            );
-            const data = response.data;
+        // Set when the location changes again, so a slow response can't
+        // replace the background of a newer search
+        let cancelled = false;
+        let fadeTimer;
 
-            if (data.results.length > 0) {
-                overlay.style.transition = "opacity 1.5s ease-in-out";
-                overlay.style.opacity = 0;
+        const showBackground = (url) => {
+            // Preload so the fade only starts once the image is ready
+            const img = new Image();
+            img.onload = () => {
+                if (cancelled) return;
 
-                const imageUrl = data.results[0].urls.full.replace(" ", ""); // Get the first image result
-                setPrevBg(imageUrl);
+                // Fade the new image in on the overlay...
+                overlay.style.transition = "none";
+                overlay.style.opacity = "0";
+                overlay.style.backgroundImage = `url('${url}')`;
+                void overlay.offsetWidth; // Forces reflow so the fade starts from 0
+                overlay.style.transition = `opacity ${BACKGROUND_FADE_MS}ms ease-in-out`;
+                overlay.style.opacity = "1";
 
-                // Preload the new image
-                const img = new Image();
-                img.src = imageUrl;
-                img.crossOrigin = "anonymous"
+                // ...then move it to the body and hide the overlay for the next fade
+                fadeTimer = setTimeout(() => {
+                    document.body.style.backgroundImage = `url('${url}')`;
+                    overlay.style.transition = "none";
+                    overlay.style.opacity = "0";
+                }, BACKGROUND_FADE_MS);
+            };
+            img.src = url;
+        };
 
-                img.onload = async () => {
-                    overlay.style.backgroundImage = `url('${imageUrl}')`;
-                };
+        const fetchBackground = async () => {
+            try {
+                const response = await axios.get("https://api.unsplash.com/search/photos", {
+                    params: {
+                        query: location,
+                        per_page: 1,
+                        client_id: import.meta.env.VITE_UNSPLASH_API_TOKEN,
+                    },
+                });
+                if (cancelled) return;
 
-                overlay.style.opacity = 1;
-            } else {
-                toast.error(
-                    <div>
-                        <strong>Error:</strong> Couldn't find an image for the city
-                    </div>);
-                overlay.style.transition = "background-image 2s ease-in-out";
-                overlay.style.backgroundImage = "url('./assets/Kyoto.jpeg')";
-                overlay.style.opacity = "1"
+                const photo = response.data.results[0];
+                if (photo) {
+                    // urls.full is the multi-megabyte original; ask for a screen-sized version
+                    showBackground(`${photo.urls.raw}&w=2400&q=80&auto=format`);
+                } else {
+                    toast.error(
+                        <div>
+                            <strong>Error:</strong> Couldn't find an image for the city
+                        </div>);
+                    showBackground(kyotoBackground);
+                }
+            } catch (error) {
+                if (!cancelled) console.error("Error fetching city image:", error);
             }
-        } catch (error) {
-            console.error("Error fetching city image:", error);
-        } finally {
-            setTimeout(async () => {
-                overlay.style.opacity = 0;
-                document.body.style.transition = "background-image 1.5s ease-in-out";
-                document.body.style.backgroundImage = `url('${prevBg}')`;
-            }, 1500);
-        }
-    }, [location, prevBg]);
+        };
+
+        fetchBackground();
+
+        return () => {
+            cancelled = true;
+            clearTimeout(fadeTimer);
+        };
+    }, [location]);
 
     const setHeaderGradient = useCallback((tempColor, day) => {
         if (!tempColor) return;
@@ -189,10 +210,8 @@ function WeatherContainer({ currentWeather }) {
     }, [weather])
 
     useEffect(() => {
-        changeBackgroundImage();
-        setHeaderGradient();
         currentWeather(weather.id);
-    }, [location, changeBackgroundImage, setHeaderGradient, weather, currentWeather]);
+    }, [weather, currentWeather]);
 
     return (
         <div id="weather-container" className="w-full rounded-lg border border-gray-200 bg-white/30 backdrop-blur-md p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800/30">
