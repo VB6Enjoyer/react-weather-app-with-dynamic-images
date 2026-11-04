@@ -89,7 +89,7 @@ export default function RainEffect() {
   }
 
   return (
-    <div>
+    <div aria-hidden="true">
       <div className="rain front-row"></div>
       <div className="rain back-row"></div>
     </div>

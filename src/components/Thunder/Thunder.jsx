@@ -24,7 +24,7 @@ function Thunder() {
     }, []);
 
     return (
-        <div id="thunder"></div>
+        <div id="thunder" aria-hidden="true"></div>
     )
 }
 

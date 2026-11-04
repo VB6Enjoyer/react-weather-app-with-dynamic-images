@@ -18,6 +18,17 @@
     align-items: left;
     justify-content: left;
     font-size: 28px;
+    overflow-wrap: anywhere; /* Long city names wrap instead of overflowing the card */
+}
+
+#local-time {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.local-time-value {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
 }
 
 #country-flag {
@@ -52,8 +63,15 @@
 
 #data-container {
     display: grid;
-    grid-template-columns: repeat(2, 2fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* minmax lets columns shrink below their content */
     gap: 12px;
+}
+
+@media (max-width: 360px) {
+    #data-container {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
 }
 
 .weather-data-container {
@@ -95,9 +113,15 @@
     border-radius: 10px;
 }
 
-.interactive-container:hover {
+.interactive-container:hover,
+.interactive-container:focus-visible {
     background-color: rgba(255, 255, 255, 0.2);
     box-shadow: 0px 0px 0px 1px rgba(255, 255, 255, 0.2);
+}
+
+.interactive-container:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
 }
 
 #temperature {

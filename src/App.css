@@ -1,6 +1,8 @@
 #root {
+  width: 100%;
   max-width: 100%;
   min-height: 100vh;
+  min-height: 100dvh; /* Excludes mobile browser toolbars where supported */
   margin: 0 auto;
   text-align: center;
   align-items: center;
@@ -13,11 +15,13 @@
 
 body {
   background-image: url("./assets/Kyoto.jpeg");
-  background-size: 110%;
   font-family: "Ubuntu", "sans-serif";
   /* Parallax is driven by a mousemove handler in App.jsx; image changes
      are faded in by the #overlay element, so they must not transition here */
   transition: background-position 0.1s ease-out;
+  /* Pinned to the viewport so a page taller than the screen (e.g. with the
+     forecast) doesn't reveal the image repeating */
+  background-attachment: fixed;
 }
 
 #overlay {
@@ -29,7 +33,7 @@ body {
   text-align: center;
   align-items: center;
   overflow: hidden;
-  position: absolute;
+  position: fixed; /* Matches the body's fixed background while it fades in */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -38,13 +42,54 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-size: 110%;
+}
+
+/* Small or portrait screens: fill the viewport without repeating. Wide
+   screens with a mouse keep the oversized image the parallax pans across */
+body,
+#overlay {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (hover: hover) and (min-aspect-ratio: 4/3) {
+  body,
+  #overlay {
+    background-size: 110%;
+    background-repeat: repeat;
+  }
 }
 
 main {
-  width: 1920px;
+  width: 100%;
+  padding: 16px;
   justify-content: center;
   display: flex;
   text-align: left;
   z-index: 1000;
+}
+
+/* Phones: keep the bottom-left credits link from covering the card */
+@media (max-width: 480px) {
+  main {
+    padding-bottom: 48px;
+  }
+}
+
+/* Respect the OS "reduce motion" setting. Rain, snow, lightning and
+   parallax are skipped in App.jsx; this stops the remaining animations */
+@media (prefers-reduced-motion: reduce) {
+  #app-header,
+  #credits-container {
+    animation: none !important;
+  }
+
+  body,
+  .interactive-container,
+  #weather-display,
+  .weather-display-update,
+  .weather-display-update-active {
+    transition: none !important;
+  }
 }

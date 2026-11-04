@@ -2,6 +2,7 @@
 
 #app-header {
     display: inline-block;
+    font-size: clamp(2.25rem, 10vw, 3.2em);
 }
 
 #weather-container {
@@ -12,7 +13,7 @@
     -webkit-backdrop-filter: blur(10px);
     display: flex;
     flex-direction: column;
-    width: 25%;
+    width: min(480px, 100%);
     text-align: center;
     align-items: center;
     justify-content: center;
