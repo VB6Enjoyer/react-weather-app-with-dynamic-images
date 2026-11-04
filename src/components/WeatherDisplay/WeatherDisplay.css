@@ -21,6 +21,16 @@
     overflow-wrap: anywhere; /* Long city names wrap instead of overflowing the card */
 }
 
+#local-time {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.local-time-value {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
 #country-flag {
     cursor: default;
 }

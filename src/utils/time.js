@@ -17,3 +17,7 @@ export const formatTime = (timestamp, timezone, use12Hour) => {
 
     return `${String(hours).padStart(2, "0")}:${minutes}`;
 };
+
+// Short weekday ("Tue") in the location's local time
+export const formatWeekday = (timestamp, timezone) =>
+    toLocalDate(timestamp, timezone).toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });

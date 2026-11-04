@@ -1,7 +1,8 @@
 import "./WeatherDisplay.css";
 import { Droplets, Sunrise, Sunset, Thermometer, Cloud, Wind } from "lucide-react"
 import { useEffect, useState } from "react";
-import { formatTime } from "../../utils/time";
+import { formatTime, formatWeekday } from "../../utils/time";
+import useNow from "../../hooks/useNow";
 
 // English country names for the flag's label and tooltip, e.g. "AR" -> "Argentina"
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
@@ -152,6 +153,9 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
         setSpeedSys(speedSys == "KM/h" ? "M/h" : "KM/h");
     }
 
+    const now = useNow();
+    const localTime = `${formatWeekday(now, timezone)} ${formatTime(now, timezone, format12)}`;
+
     const sunrise = formatTime(sys.sunrise, timezone, format12);
     const sunset = formatTime(sys.sunset, timezone, format12);
 
@@ -191,6 +195,7 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                     <h2 id="location">{location} {getFlag()}</h2>
                     <img id="weather-icon" src={getIcon()} alt={weather.main} title={weather.description.charAt(0).toUpperCase() + weather.description.slice(1) || ""} />
                     {dangerWarning()}
+                    <p id="local-time">Local time: <span className="local-time-value">{localTime}</span></p>
                 </span>
 
                 <div id="data-container">
