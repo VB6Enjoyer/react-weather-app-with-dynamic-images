@@ -53,6 +53,7 @@
 
 #search-button {
     background-color: #d15353;
+    color: #111111; /* Meets 4.5:1 contrast on the red in light and dark mode */
     margin: 10px 0px;
     padding: 15px;
     width: 77.5%;
@@ -100,8 +101,12 @@
 }
 
 .suggestion.active {
-    background-color: #d15353;
+    background-color: #a83232; /* Darker than the button red so white text passes contrast */
     color: #ffffff;
+}
+
+.suggestion.active .suggestion-region {
+    opacity: 0.9;
 }
 
 .suggestion-name {
