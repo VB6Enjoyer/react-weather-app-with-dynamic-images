@@ -21,6 +21,8 @@ const toggleProps = (onToggle, hint) => ({
     },
 });
 
+const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
 // Placeholder values while nothing has been shown yet
 const EMPTY = { location: "", country: "", conditions: {}, main: {}, wind: {}, sys: {}, timezone: 0, forecast: null };
 
@@ -152,7 +154,7 @@ function WeatherDisplay({ data, tempColor }) {
             {data && shown ? <>
                 <span id="weather-header">
                     <h2 id="location">{location} {getFlag()}</h2>
-                    <img id="weather-icon" src={getIcon()} alt={weather.main} title={weather.description.charAt(0).toUpperCase() + weather.description.slice(1) || ""} />
+                    <img id="weather-icon" src={getIcon()} alt={weather.main ?? ""} title={capitalize(weather.description ?? "")} />
                     {dangerWarning()}
                     <p id="local-time">Local time: <span className="local-time-value">{localTime}</span></p>
                 </span>
