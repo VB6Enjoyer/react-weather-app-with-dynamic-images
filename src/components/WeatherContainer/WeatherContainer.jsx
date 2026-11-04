@@ -1,146 +1,22 @@
 import WeatherSearch from "../WeatherSearch/WeatherSearch";
 import WeatherDisplay from "../WeatherDisplay/WeatherDisplay";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
 import "./WeatherContainer.css";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
 import GradientColors from "./gradientColors";
-import { getCurrentWeather, getForecast } from "../../api/openWeather";
-import summarizeForecast from "../../utils/forecast";
-import { placeFromSearch, placeLabel, placeToSearch } from "../../utils/placeUrl";
-import { readStored, writeStored } from "../../utils/storage";
+import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
+import useWeather from "../../hooks/useWeather";
+import { placeLabel } from "../../utils/placeUrl";
 import kyotoBackground from "../../assets/Kyoto.jpeg";
 
 const BACKGROUND_FADE_MS = 1500;
-const LAST_PLACE_KEY = "weather-app.lastPlace";
 
 function WeatherContainer({ currentWeather }) {
-    const [display, setDisplay] = useState(false);
-    const [location, setLocation] = useState("");
-    const [main, setMain] = useState("");
-    const [weather, setWeather] = useState("");
-    const [country, setCountry] = useState("");
-    const [wind, setWind] = useState({});
-    const [sys, setSys] = useState({});
-    const [timezone, setTimezone] = useState(0);
-    const [forecast, setForecast] = useState(null);
-    const [error, setError] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-
-    // A place in the URL (a shared link) wins over the last place visited
-    const [initialPlace] = useState(() =>
-        placeFromSearch(window.location.search) ??
-        placeFromSearch(readStored(LAST_PLACE_KEY, "", (value) => typeof value === "string"))
-    );
-    const initialLoadStarted = useRef(false);
-
-    // Put the place in the address bar so the page can be shared or
-    // bookmarked, and remember it for the next visit
-    const rememberPlace = (place, resolvedName) => {
-        const search = placeToSearch(place, resolvedName);
-        window.history.replaceState(null, "", search);
-        writeStored(LAST_PLACE_KEY, search);
-    };
-
-    // Current weather first, since its coordinates resolve typed names, then
-    // the forecast. A failed forecast still shows the current weather.
-    const loadWeather = async (place) => {
-        const { data: current } = await getCurrentWeather(place);
-
-        try {
-            const { data } = await getForecast(current.coord);
-            return { current, forecast: summarizeForecast(data) };
-        } catch (error) {
-            console.error("Error fetching forecast:", error);
-            return { current, forecast: null };
-        }
-    };
-
-    // place is { query } from the search box, or { lat, lon, label } from a
-    // suggestion or geolocation (see api/openWeather.js)
-    const fetchWeatherData = async (place) => {
-        if (place.query != null && !place.query.trim()) {
-            toast.error(
-                <div>
-                    <strong>Error:</strong> Please enter a location
-                </div>);
-            return;
-        }
-
-        setIsLoading(true);
-        setError(false);
-
-        // toast.promise rethrows on failure; the error handler below has
-        // already updated the UI, so only make sure loading always ends
-        try {
-            await toast.promise(
-                loadWeather(place),
-                {
-                    loading: 'Loading...',
-                    success: ({ current, forecast }) => {
-                        // A picked suggestion's name beats the nearest weather station's
-                        setLocation(place.label || current.name);
-                        setMain(current.main);
-                        setWeather(current.weather[0]);
-                        setCountry(current.sys.country);
-                        setWind(current.wind);
-                        setSys(current.sys);
-                        setTimezone(current.timezone);
-                        setForecast(forecast);
-                        rememberPlace(place, current.name);
-
-                        setDisplay(true);
-                        setError(false);
-                        return <b>Weather loaded!</b>;
-                    },
-                    error: (error) => {
-                        setDisplay(false);
-                        setError(true);
-                        console.error(error);
-                        return <strong>Couldn't find the specified location</strong>;
-                    },
-                }
-            );
-        } catch {
-            // Handled by the toast's error callback
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    // Load the shared or last place once on start (the ref keeps StrictMode's
-    // double-run in development from fetching twice)
-    useEffect(() => {
-        if (initialLoadStarted.current || !initialPlace) return;
-        initialLoadStarted.current = true;
-        fetchWeatherData(initialPlace);
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount by design
-    }, []);
-
-    const locateUser = () => {
-        if (!navigator.geolocation) {
-            toast.error("Your browser can't share its location");
-            return;
-        }
-
-        const toastId = toast.loading("Finding your location...");
-
-        navigator.geolocation.getCurrentPosition(
-            ({ coords }) => {
-                toast.dismiss(toastId);
-                fetchWeatherData({ lat: coords.latitude, lon: coords.longitude });
-            },
-            (error) => {
-                const message = error.code === error.PERMISSION_DENIED
-                    ? "Location access was denied"
-                    : "Couldn't find your location";
-                toast.error(message, { id: toastId });
-            },
-            // City-level accuracy is plenty, and a recent position can be reused
-            { enableHighAccuracy: false, timeout: 10000, maximumAge: 10 * 60 * 1000 }
-        );
-    };
+    const { weather, isLoading, loadPlace, locateUser, initialPlace } = useWeather();
+    const location = weather?.location;
+    const conditions = weather?.conditions;
 
     // Fetch and cross-fade the background once per location
     useEffect(() => {
@@ -215,9 +91,9 @@ function WeatherContainer({ currentWeather }) {
 
     const setHeaderGradient = useCallback((tempColor, day) => {
         if (!tempColor) return;
-        if (!weather) return;
+        if (!conditions) return;
 
-        const id = weather.id;
+        const id = conditions.id;
         let index;
 
         if (id >= 200 && id <= 232) index = 0;
@@ -280,31 +156,23 @@ function WeatherContainer({ currentWeather }) {
         if (existingStyleElement) existingStyleElement.remove();
 
         document.head.appendChild(styleElement);
-    }, [weather])
+    }, [conditions])
 
+    // Lets App pick the rain, snow or thunder effect
     useEffect(() => {
-        currentWeather(weather.id);
-    }, [weather, currentWeather]);
+        currentWeather(conditions?.id);
+    }, [conditions, currentWeather]);
 
     return (
         <div id="weather-container" className="w-full rounded-lg border border-gray-200 bg-white/30 backdrop-blur-md p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800/30">
             {createPortal(<Toaster position="bottom-center" reverseOrder={false} />, document.body)}
             <h1 className="text-2xl font-bold mb-4" id="app-header">Weather App</h1>
-            <WeatherSearch fetchData={fetchWeatherData} isLoading={isLoading} onLocate={locateUser} initialValue={placeLabel(initialPlace)} />
+            <WeatherSearch fetchData={loadPlace} isLoading={isLoading} onLocate={locateUser} initialValue={placeLabel(initialPlace)} />
 
-            {!error
-                ? <WeatherDisplay
-                    loc={location}
-                    mainObj={main}
-                    weatherObj={weather}
-                    countryCode={country}
-                    windObj={wind}
-                    sysObj={sys}
-                    timez={timezone}
-                    forecastData={forecast}
-                    visible={display}
-                    tempColor={setHeaderGradient} />
-                : ""}
+            {/* A rendering bug in the display shouldn't take the search down with it */}
+            <ErrorBoundary resetKey={weather}>
+                <WeatherDisplay data={weather} tempColor={setHeaderGradient} />
+            </ErrorBoundary>
         </div>
     )
 }

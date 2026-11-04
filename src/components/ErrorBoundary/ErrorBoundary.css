@@ -1,0 +1,10 @@
+.error-fallback {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.error-fallback button {
+    margin-top: 8px;
+    color: #111111;
+    background-color: #e9f1ff;
+}

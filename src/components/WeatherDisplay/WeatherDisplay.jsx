@@ -21,16 +21,16 @@ const toggleProps = (onToggle, hint) => ({
     },
 });
 
-function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj, timez, forecastData, visible, tempColor }) {
+// Placeholder values while nothing has been shown yet
+const EMPTY = { location: "", country: "", conditions: {}, main: {}, wind: {}, sys: {}, timezone: 0, forecast: null };
+
+// data is the object from useWeather, or null when there's nothing to show
+function WeatherDisplay({ data, tempColor }) {
     const [animationClass, setAnimationClass] = useState('');
-    const [location, setLocation] = useState("");
-    const [main, setMain] = useState("");
-    const [weather, setWeather] = useState("");
-    const [country, setCountry] = useState("");
-    const [wind, setWind] = useState({});
-    const [sys, setSys] = useState({});
-    const [timezone, setTimezone] = useState(0);
-    const [forecast, setForecast] = useState(null);
+    // What's on screen lags behind `data` by the fade-out, so new values
+    // only appear once the old ones are hidden
+    const [shown, setShown] = useState(null);
+    const { location, country, conditions: weather, main, wind, sys, timezone, forecast } = shown ?? EMPTY;
     // Unit choices are remembered between visits
     const [tempScale, setTempScale] = useStoredState("weather-app.tempScale", "°C", ["°C", "°F", "K"]);
     const [speedSys, setSpeedSys] = useStoredState("weather-app.speedUnit", "KM/h", ["KM/h", "M/h"]);
@@ -134,33 +134,22 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
         setFormat12(prevFormat => !prevFormat);
     }
 
-    // Reset animation when visible changes or new data is loaded
+    // Fade out, swap in the new data while hidden, then fade back in
     useEffect(() => {
-        if (visible) {
-            setAnimationClass('weather-display-update'); // Make the component invisible with CSS
+        setAnimationClass('weather-display-update'); // Invisible via CSS
+        if (!data) return;
 
-            // Force a reflow and update content while invisible
-            const timer = setTimeout(() => {
-                setAnimationClass('weather-display-update-active'); // After the fade-out completes, start fade-in
-                setLocation(loc);
-                setMain(mainObj);
-                setWeather(weatherObj);
-                setCountry(countryCode);
-                setWind(windObj);
-                setSys(sysObj);
-                setTimezone(timez);
-                setForecast(forecastData);
-            }, 400); //
+        const timer = setTimeout(() => {
+            setShown(data);
+            setAnimationClass('weather-display-update-active');
+        }, 400); // Matches the fade-out duration in WeatherDisplay.css
 
-            return () => clearTimeout(timer);
-        } else {
-            setAnimationClass('weather-display-update');
-        }
-    }, [location, visible, countryCode, loc, mainObj, sysObj, timez, forecastData, weatherObj, windObj]);
+        return () => clearTimeout(timer);
+    }, [data]);
 
     return (
         <div id="weather-display" className={animationClass}>
-            {visible && location ? <>
+            {data && shown ? <>
                 <span id="weather-header">
                     <h2 id="location">{location} {getFlag()}</h2>
                     <img id="weather-icon" src={getIcon()} alt={weather.main} title={weather.description.charAt(0).toUpperCase() + weather.description.slice(1) || ""} />
