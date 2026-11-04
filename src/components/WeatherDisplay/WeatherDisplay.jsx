@@ -1,6 +1,6 @@
 import "./WeatherDisplay.css";
 import { Droplets, Sunrise, Sunset, Thermometer, Cloud, Wind } from "lucide-react"
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj, timez, visible, tempColor }) {
     const [animationClass, setAnimationClass] = useState('');
@@ -13,8 +13,6 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
     const [timezone, setTimezone] = useState(0);
     const [tempScale, setTempScale] = useState("°C");
     const [speedSys, setSpeedSys] = useState("KM/h")
-    const [sunrise, setSunrise] = useState("");
-    const [sunset, setSunset] = useState("");
     const [format12, setFormat12] = useState(true);
 
     // The API returns Celsius and m/s; convert at render time so the selected
@@ -137,35 +135,30 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
         setSpeedSys(speedSys == "KM/h" ? "M/h" : "KM/h");
     }
 
-    const formatTime = useCallback((timestamp, format) => {
-        const localTime = new Date((timestamp + timezone) * 1000);
-        let daytime;
+    // timestamp is UTC seconds and timezone the location's offset in seconds,
+    // so the shifted date's UTC fields hold the location's local time
+    const formatTime = (timestamp, use12Hour) => {
+        if (!Number.isFinite(timestamp)) return "";
 
-        let hours = localTime.getUTCHours();
+        const localTime = new Date((timestamp + timezone) * 1000);
+        const hours = localTime.getUTCHours();
         const minutes = String(localTime.getUTCMinutes()).padStart(2, "0");
 
-        if (format && hours > 12) {
-            hours = String(hours - 12).padStart(2, "0");
-            daytime = "PM";
-        } else {
-            hours = String(hours);
-            daytime = "AM";
+        if (use12Hour) {
+            const period = hours >= 12 ? "PM" : "AM";
+            return `${hours % 12 || 12}:${minutes} ${period}`;
         }
 
-        if (format) {
-            return `${hours}:${minutes} ${daytime}`
-        } else {
-            return `${hours}:${minutes}`
-        }
-    }, [timezone]);
+        return `${String(hours).padStart(2, "0")}:${minutes}`;
+    }
+
+    const sunrise = formatTime(sys.sunrise, format12);
+    const sunset = formatTime(sys.sunset, format12);
 
     const changeTimeFormat = (e) => {
         e.preventDefault();
 
         setFormat12(prevFormat => !prevFormat);
-
-        setSunrise(formatTime(sys.sunrise, format12));
-        setSunset(formatTime(sys.sunset, format12));
     }
 
     // Reset animation when visible changes or new data is loaded
@@ -183,15 +176,13 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                 setWind(windObj);
                 setSys(sysObj);
                 setTimezone(timez);
-                setSunrise(formatTime(sysObj.sunrise));
-                setSunset(formatTime(sysObj.sunset));
             }, 400); //
 
             return () => clearTimeout(timer);
         } else {
             setAnimationClass('weather-display-update');
         }
-    }, [location, visible, countryCode, loc, mainObj, sysObj, timez, weatherObj, windObj, formatTime]);
+    }, [location, visible, countryCode, loc, mainObj, sysObj, timez, weatherObj, windObj]);
 
     return (
         <div id="weather-display" className={animationClass}>
