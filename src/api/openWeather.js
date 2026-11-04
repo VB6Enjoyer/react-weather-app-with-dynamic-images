@@ -15,3 +15,15 @@ export const getCurrentWeather = (place, config) =>
         ...config,
         params: { ...placeParams(place), appid: API_KEY, units: "metric" },
     });
+
+// Up to five places matching a name, each with name, state, country,
+// lat and lon. Used for the search suggestions.
+export const searchCities = (query, config) =>
+    axios
+        .get(`${BASE_URL}/geo/1.0/direct`, {
+            ...config,
+            params: { q: query, limit: 5, appid: API_KEY },
+        })
+        .then((response) => response.data);
+
+export const isRequestCancelled = axios.isCancel;

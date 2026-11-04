@@ -23,8 +23,10 @@ function WeatherContainer({ currentWeather }) {
     const [error, setError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const fetchWeatherData = async (search) => {
-        if (!search.trim()) {
+    // place is { query } from the search box, or { lat, lon, label } from a
+    // suggestion or geolocation (see api/openWeather.js)
+    const fetchWeatherData = async (place) => {
+        if (place.query != null && !place.query.trim()) {
             toast.error(
                 <div>
                     <strong>Error:</strong> Please enter a location
@@ -39,12 +41,13 @@ function WeatherContainer({ currentWeather }) {
         // already updated the UI, so only make sure loading always ends
         try {
             await toast.promise(
-                getCurrentWeather({ query: search }),
+                getCurrentWeather(place),
                 {
                     loading: 'Loading...',
                     success: (response) => {
                         if (response) {
-                            setLocation(response.data.name);
+                            // A picked suggestion's name beats the nearest weather station's
+                            setLocation(place.label || response.data.name);
                             setMain(response.data.main);
                             setWeather(response.data.weather[0]);
                             setCountry(response.data.sys.country);
@@ -70,7 +73,6 @@ function WeatherContainer({ currentWeather }) {
         } finally {
             setIsLoading(false);
         }
-        return search;
     }
 
     // Fetch and cross-fade the background once per location
