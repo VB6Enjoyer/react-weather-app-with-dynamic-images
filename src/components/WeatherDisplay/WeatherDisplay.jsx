@@ -3,6 +3,7 @@ import { Droplets, Sunrise, Sunset, Thermometer, Cloud, Wind } from "lucide-reac
 import { useEffect, useState } from "react";
 import { formatTime, formatWeekday } from "../../utils/time";
 import useNow from "../../hooks/useNow";
+import temperatureColor from "../../utils/temperatureColor";
 
 // English country names for the flag's label and tooltip, e.g. "AR" -> "Argentina"
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
@@ -53,48 +54,12 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
         return <span id="country-flag" role="img" aria-label={countryName} title={countryName}>{country.toUpperCase().split("").map(char => String.fromCodePoint(0x1F1E6 + char.charCodeAt(0) - 65)).join("")}</span>;
     }
 
-    const getTemperatureColor = (temp) => {
-        const minTemp = tempScale == "°C" ? -10 : tempScale == "°F" ? 14 : 263.15; // Extreme cold
-        const maxTemp = tempScale == "°C" ? 40 : tempScale == "°F" ? 104 : 313.15;  // Extreme hot
+    // Tint the header gradient with the current temperature and time of day
+    useEffect(() => {
+        if (!Number.isFinite(main.temp) || !weather.icon) return;
 
-        // Clamp temperature within the range
-        const clampedTemp = Math.max(minTemp, Math.min(maxTemp, temp));
-
-        // Normalize temperature to a 0-1 scale
-        const ratio = (clampedTemp - minTemp) / (maxTemp - minTemp);
-
-        let r, g, b;
-
-        if (ratio < 0.25) { // Cold: Blue → Cyan
-            r = 0;
-            g = Math.round(255 * (ratio / 0.25));
-            b = 255;
-        } else if (ratio < 0.5) { // Cool: Cyan → Green
-            r = 0;
-            g = 255;
-            b = Math.round(255 * (1 - (ratio - 0.25) / 0.25));
-        } else if (ratio < 0.75) { // Warm: Green → Yellow → Orange
-            r = Math.round(255 * ((ratio - 0.5) / 0.25));
-            g = 255;
-            b = 0;
-        } else { // Hot: Orange → Red
-            r = 255;
-            g = Math.round(255 * (1 - (ratio - 0.75) / 0.25));
-            b = 0;
-        }
-
-        const formattedColor = `rgb(${r}, ${g}, ${b})`;
-        let day;
-
-        if (weather.icon[2] == "d") {
-            day = true;
-        } else {
-            day = false;
-        }
-
-        tempColor(formattedColor, day);
-        return formattedColor;
-    };
+        tempColor(temperatureColor(main.temp), weather.icon.endsWith("d"));
+    }, [main, weather, tempColor]);
 
     const getIcon = () => {
         return `https://openweathermap.org/img/wn/${weather.icon}@2x.png`
@@ -204,7 +169,7 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                         <span id="temperature" className="weather-data">
                             <b className="data-header non-selectable">Temperature</b>
                             <span>
-                                <p className="weather-value" id="temperature-value" style={{ color: getTemperatureColor(temperature) }}>{
+                                <p className="weather-value" id="temperature-value" style={{ color: temperatureColor(main.temp) }}>{
                                     Number.isFinite(temperature)
                                         ? `${Math.round(temperature)}`
                                         : "Error"}</p>
@@ -212,7 +177,7 @@ function WeatherDisplay({ loc, mainObj, weatherObj, countryCode, windObj, sysObj
                             </span>
                             {Number.isFinite(feelsLike)
                                 ? <span id="feels-like-container"> Feels like
-                                    <p id="feels-like" style={{ color: getTemperatureColor(feelsLike) }}>{` ${Math.round(feelsLike)}`}</p>
+                                    <p id="feels-like" style={{ color: temperatureColor(main.feels_like) }}>{` ${Math.round(feelsLike)}`}</p>
                                     <p className="inline">{tempScale}</p>
                                 </span>
                                 : ""}
@@ -280,8 +245,8 @@ export default WeatherDisplay;
         <b className="data-header">Min/Max</b>
         <span className="weather-value" id="min-max-value">{
             <>
-                <p id="min-temp" style={{ color: getTemperatureColor(main.temp_min) }}>{Math.round(main.temp_min) || "?"}</p>/
-                <p id="max-temp" style={{ color: getTemperatureColor(main.temp_max) }}>{Math.round(main.temp_max) || "?"}</p>
+                <p id="min-temp" style={{ color: temperatureColor(main.temp_min) }}>{Math.round(main.temp_min) || "?"}</p>/
+                <p id="max-temp" style={{ color: temperatureColor(main.temp_max) }}>{Math.round(main.temp_max) || "?"}</p>
             </>
         }</span>
     </span>
