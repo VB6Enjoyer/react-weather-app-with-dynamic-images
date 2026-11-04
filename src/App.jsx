@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css'
 import RainEffect from './components/Rain/RainEffect';
 import WeatherContainer from './components/WeatherContainer/WeatherContainer'
@@ -10,15 +10,20 @@ function App() {
   const [weather, setWeather] = useState(0);
 
   // Parallax effect
-  document.addEventListener('mousemove', function (e) {
-    const body = document.body;
-    const overlay = document.getElementById("overlay");
-    const x = e.clientX / window.innerWidth;
-    const y = e.clientY / window.innerHeight;
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const overlay = document.getElementById("overlay");
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      const position = `${x * 33}% ${y * 66}%`;
 
-    body.style.backgroundPosition = `${x * 33}% ${y * 66}%`;
-    if (overlay) overlay.style.backgroundPosition = `${x * 33}% ${y * 66}%`;
-  });
+      document.body.style.backgroundPosition = position;
+      if (overlay) overlay.style.backgroundPosition = position;
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   const currentWeather = (id) => {
     setWeather(id);
