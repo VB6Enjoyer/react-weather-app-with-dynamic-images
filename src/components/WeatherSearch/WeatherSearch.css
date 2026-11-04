@@ -31,6 +31,14 @@
     transition: all 0.5s ease;
 }
 
+@media (max-width: 480px) {
+    #weather-search,
+    #search-bar,
+    #search-button {
+        width: 100%;
+    }
+}
+
 #search-button:hover {
     background-color: #d26464;
     border-color: #a12828;

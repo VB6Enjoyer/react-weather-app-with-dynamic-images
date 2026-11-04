@@ -18,6 +18,7 @@
     align-items: left;
     justify-content: left;
     font-size: 28px;
+    overflow-wrap: anywhere; /* Long city names wrap instead of overflowing the card */
 }
 
 #country-flag {
@@ -52,8 +53,15 @@
 
 #data-container {
     display: grid;
-    grid-template-columns: repeat(2, 2fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* minmax lets columns shrink below their content */
     gap: 12px;
+}
+
+@media (max-width: 360px) {
+    #data-container {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
 }
 
 .weather-data-container {

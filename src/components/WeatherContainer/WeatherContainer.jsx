@@ -223,7 +223,7 @@ function WeatherContainer({ currentWeather }) {
     }, [weather, currentWeather]);
 
     return (
-        <div id="weather-container" className="w-full rounded-lg border border-gray-200 bg-white/30 backdrop-blur-md p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800/30">
+        <div id="weather-container" className="w-full rounded-lg border border-gray-200 bg-white/30 backdrop-blur-md p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800/30">
             {createPortal(<Toaster position="bottom-center" reverseOrder={false} />, document.body)}
             <h1 className="text-2xl font-bold mb-4" id="app-header">Weather App</h1>
             <WeatherSearch fetchData={fetchWeatherData} isLoading={isLoading} />
